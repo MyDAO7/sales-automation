@@ -25,9 +25,9 @@ pandas
 openpyxl
 matplotlib
 # Skills
-Python 
-pandas 
-matplotlib 
-openpyxl 
-Excel Automation  
+Python |
+pandas |
+matplotlib | 
+openpyxl |
+Excel Automation |  
 Data Cleaning
