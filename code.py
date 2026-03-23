@@ -18,16 +18,16 @@ print("="*60)
 # Load the client's file
 df = pd.read_excel('client_sales_data.xlsx')
 
-print(f"\n📊 Original data shape: {df.shape}")
-print(f"\n📋 First 5 rows:")
+print(f"\n Original data shape: {df.shape}")
+print(f"\n First 5 rows:")
 print(df.head())
 
-print(f"\n🔍 Missing values:")
+print(f"\n Missing values:")
 print(df.isnull().sum())
 
-print(f"\n🏷️ Unique branches: {df['Branch'].unique()}")
+print(f"\n Unique branches: {df['Branch'].unique()}")
 
-print(f"\n🔄 Duplicate rows: {df.duplicated().sum()}")
+print(f"\n Duplicate rows: {df.duplicated().sum()}")
 
 # ============================================
 # DATA CLEANING
@@ -38,23 +38,23 @@ print("="*60)
 
 # Fix missing amounts - fill with product average
 df['Amount'] = df['Amount'].fillna(df.groupby('Product')['Amount'].transform('mean'))
-print(f"\n✅ Missing amounts filled: {df['Amount'].isna().sum()} remaining")
+print(f"\n Missing amounts filled: {df['Amount'].isna().sum()} remaining")
 
 # Fix missing dates
 df['Date_Filled'] = df['Date'].isna()
 df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
 df['Date'] = df['Date'].fillna(pd.Timestamp('2024-01-01'))
-print(f"✅ Missing dates filled: {df['Date_Filled'].sum()}")
+print(f" Missing dates filled: {df['Date_Filled'].sum()}")
 
 # Fix branch typos
 valid_branches = ['North', 'South', 'East']
 df['Branch'] = df['Branch'].replace('West', 'East')
 invalid_branches = df[~df['Branch'].isin(valid_branches)]
 if len(invalid_branches) > 0:
-    print(f"⚠️ Invalid branches found: {invalid_branches['Branch'].unique()}")
+    print(f" Invalid branches found: {invalid_branches['Branch'].unique()}")
     df['Branch'] = df['Branch'].replace(invalid_branches['Branch'].unique(), 'Unknown')
 else:
-    print("✅ All branches are valid")
+    print(" All branches are valid")
 
 print(f"\nFixed branches: {df['Branch'].unique()}")
 
@@ -62,8 +62,8 @@ print(f"\nFixed branches: {df['Branch'].unique()}")
 before = len(df)
 df = df.drop_duplicates()
 after = len(df)
-print(f"✅ Removed {before - after} duplicate rows")
-print(f"✅ After cleaning: {len(df)} rows")
+print(f" Removed {before - after} duplicate rows")
+print(f" After cleaning: {len(df)} rows")
 
 # ============================================
 # CREATE MONTH COLUMN (NEEDED FOR MONTHLY SUMMARY)
@@ -73,7 +73,7 @@ print("CREATING MONTH COLUMN")
 print("="*60)
 
 df['Month'] = pd.to_datetime(df['Date']).dt.to_period('M').astype(str)
-print("✅ Month column created")
+print(" Month column created")
 print(df[['Date', 'Month']].head())
 
 # ============================================
@@ -104,12 +104,12 @@ total_row = pd.DataFrame({
 })
 
 summarry['By_Branch'] = pd.concat([branch_raw, total_row], ignore_index=True)
-print("✅ Branch summary with grand total created")
+print(" Branch summary with grand total created")
 
 # 2. Top Products
 summarry['Top_product'] = df.groupby('Product')['Amount'].sum().sort_values(ascending=False).head(5).reset_index()
 summarry['Top_product'].columns = ['Product', 'Total_Sales']
-print("✅ Top products created")
+print(" Top products created")
 
 # 3. Monthly Summary (flatten MultiIndex)
 monthly_raw = df.pivot_table(
@@ -129,7 +129,7 @@ total_month_row = pd.DataFrame({
 })
 
 summarry['monthly'] = pd.concat([monthly_raw, total_month_row], ignore_index=True)
-print("✅ Monthly summary with grand total created")
+print(" Monthly summary with grand total created")
 
 # 4. Overall Stats
 stats_dict = {
@@ -155,7 +155,7 @@ stats_dict = {
     ]
 }
 summarry['Overall'] = pd.DataFrame(stats_dict)
-print("✅ Overall stats created")
+print(" Overall stats created")
 
 # ============================================
 # CREATE LINE CHART
@@ -179,7 +179,7 @@ plt.tight_layout()
 plt.savefig('monthly_trend.png', dpi=100, bbox_inches='tight')
 plt.show()
 plt.close()
-print("✅ Chart saved: monthly_trend.png")
+print(" Chart saved: monthly_trend.png")
 
 # ============================================
 # SAVE FINAL EXCEL
@@ -191,25 +191,25 @@ print("="*60)
 with pd.ExcelWriter('Sales_Report_Final.xlsx', engine='openpyxl') as writer:
     # Cleaned data
     df.to_excel(writer, sheet_name='Cleaned Data', index=False)
-    print("✅ Added: Cleaned Data")
+    print(" Added: Cleaned Data")
     
     # Overall stats
     summarry['Overall'].to_excel(writer, sheet_name='Overall Statistics', index=False)
-    print("✅ Added: Overall Statistics")
+    print(" Added: Overall Statistics")
     
     # Branch summary with grand total
     summarry['By_Branch'].to_excel(writer, sheet_name='Sales by Branch', index=False)
-    print("✅ Added: Sales by Branch")
+    print(" Added: Sales by Branch")
     
     # Monthly summary with grand total
     summarry['monthly'].to_excel(writer, sheet_name='Monthly Summary', index=False)
-    print("✅ Added: Monthly Summary")
+    print(" Added: Monthly Summary")
     
     # Top products
     summarry['Top_product'].to_excel(writer, sheet_name='Top Products', index=False)
-    print("✅ Added: Top Products")
+    print(" Added: Top Products")
 
-print(f"\n✅ Final report saved: Sales_Report_Final.xlsx")
+print(f"\n Final report saved: Sales_Report_Final.xlsx")
 
 
 monthly_data = summarry['monthly'][summarry['monthly']['Month'] != 'GRAND TOTAL'].copy()
@@ -229,7 +229,7 @@ img.height=250
 ws.add_image(img,'F2')
 wb.save('Sales_Report_Final.xlsx')
 
-print("✅ Chart added!")
+print(" Chart added!")
 branch_data = summarry['By_Branch'][summarry['By_Branch']['Branch'] != 'GRAND TOTAL'].copy()
 
 # Define professional colors
@@ -261,7 +261,7 @@ img.height = 400
 ws.add_image(img, 'E2')
 wb.save('Sales_Report_Final.xlsx')
 
-print("✅ Colored pie chart added!")
+print(" Colored pie chart added!")
 # ============================================
 # FINAL SUMMARY
 # ============================================
@@ -289,7 +289,6 @@ print(f"""
    4. Monthly Summary - Sales trend by month (with Grand Total)
    5. Top Products - Best selling products
 
-✅ Ready for client delivery!
 """)
 
 # Show first few rows of cleaned data for verification
@@ -368,4 +367,4 @@ for sheet_name in wb.sheetnames:
 
 # Save the formatted file
 wb.save('Sales_Report_Final_Formatted.xlsx')
-print("✅ Professional formatting added to all sheets!")
+print(" Professional formatting added to all sheets!")
